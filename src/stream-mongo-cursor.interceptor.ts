@@ -1,6 +1,7 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { Readable } from 'stream';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class StreamMongoCursorInterceptor implements NestInterceptor {
@@ -8,14 +9,8 @@ export class StreamMongoCursorInterceptor implements NestInterceptor {
     return new Observable((observer) => {
       next.handle().subscribe({
         next: async (data) => {
-          const isMongoStream = Reflect.getMetadata('streamMongoCursor', context.getHandler());
-
-          console.log('Is stream?', isMongoStream);
-          console.log('Data type:', typeof data);
-          console.log('Is array?', Array.isArray(data));
-          console.log('Is Readable?', data instanceof Readable);
-          console.log('Has asyncIterator?', typeof data[Symbol.asyncIterator] === 'function');
-          console.log('Has stream method?', typeof data.stream === 'function');
+          const isMongoStream = Reflect.getMetadata('mongoCursor', context.getHandler());
+          const type = Reflect.getMetadata('cursorType', context.getHandler());
 
           if (isMongoStream && this.isStreamable(data)) {
             const response = context.switchToHttp().getResponse();
@@ -31,7 +26,10 @@ export class StreamMongoCursorInterceptor implements NestInterceptor {
                 if (!first) {
                   response.write(',');
                 }
-                response.write(JSON.stringify(doc));
+                const serializedDoc = type
+                  ? JSON.stringify(plainToInstance(type, doc, { excludeExtraneousValues: true }))
+                  : JSON.stringify(doc);
+                response.write(serializedDoc);
                 first = false;
               }
 
@@ -54,16 +52,16 @@ export class StreamMongoCursorInterceptor implements NestInterceptor {
     });
   }
 
-/*
-  private isStreamable1(data: any): boolean {
-    return (
-      data instanceof Readable ||
-      data instanceof FindCursor ||
-      data instanceof AggregationCursor ||
-      data instanceof MongooseCursor
-    );
-  }
-*/
+  /*
+    private isStreamable1(data: any): boolean {
+      return (
+        data instanceof Readable ||
+        data instanceof FindCursor ||
+        data instanceof AggregationCursor ||
+        data instanceof MongooseCursor
+      );
+    }
+  */
 
   private isStreamable(data: any): boolean {
     return (
