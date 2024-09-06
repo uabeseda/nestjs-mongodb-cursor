@@ -51,59 +51,43 @@ export class UserController {
 
 ### Using the @StreamMongoCursor() Decorator
 
-Mark any controller method that should return a streamed cursor with the @StreamMongoCursor() decorator.
+Mark any controller method that should return a streamed cursor with the @StreamMongoCursor() decorator. It can be used with or without a type parameter for serialization.
 
-#### Example with Mongoose
-
-Here’s how to stream a Mongoose cursor:
+#### Basic usage
 
 ```typescript
-import { Controller, Get } from '@nestjs/common';
 import { StreamMongoCursor } from '@uabeseda/nestjs-mongodb-cursor';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-
-@Schema()
-export class User {
-  @Prop()
-  name: string;
-
-  @Prop()
-  age: number;
-}
-
-export const UserSchema = SchemaFactory.createForClass(User);
 
 @Controller('users')
 export class UserController {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(private readonly dataService: DataService) {
+  }
 
-  @Get('stream')
+  @Get()
   @StreamMongoCursor()
-  async streamUsers() {
-    return this.userModel.find().cursor();
+  getData() {
+    return this.dataService.getCursor();
   }
 }
 ```
 
-#### Example with Native MongoDB
+#### Custom Serialization
 
-If you are working with the native MongoDB driver:
-    
+You can provide a type for custom serialization using class-transformer:
+
 ```typescript
-import { Controller, Get, Inject } from '@nestjs/common';
 import { StreamMongoCursor } from '@uabeseda/nestjs-mongodb-cursor';
-import { Db } from 'mongodb';
+import { YourResponseType } from './your-response-type';
 
 @Controller('users')
 export class UserController {
-  constructor(@Inject('DATABASE_CONNECTION') private db: Db) {}
+  constructor(private readonly dataService: DataService) {
+  }
 
-  @Get('stream')
-  @StreamMongoCursor()
-  async streamUsers() {
-    const collection = this.db.collection('users');
-    return collection.find().stream();
+  @Get()
+  @StreamMongoCursor({ type: YourResponseType })
+  async getData() {
+    return this.dataService.getCursor();
   }
 }
 ```
