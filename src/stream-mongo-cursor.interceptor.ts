@@ -36,7 +36,6 @@ export class StreamMongoCursorInterceptor implements NestInterceptor {
               response.write(']');
               response.end();
             } catch (e) {
-              console.error('Error in stream processing:', e);
               if (!response.headersSent) {
                 response.status(500).json({ error: 'An error occurred while processing the stream' });
               }
@@ -51,17 +50,6 @@ export class StreamMongoCursorInterceptor implements NestInterceptor {
       });
     });
   }
-
-  /*
-    private isStreamable1(data: any): boolean {
-      return (
-        data instanceof Readable ||
-        data instanceof FindCursor ||
-        data instanceof AggregationCursor ||
-        data instanceof MongooseCursor
-      );
-    }
-  */
 
   private isStreamable(data: any): boolean {
     return (

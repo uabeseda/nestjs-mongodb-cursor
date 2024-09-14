@@ -1,6 +1,16 @@
 # Changelog
 
 
+## [0.0.4] - 2023-09-14
+
+### Added
+- Add scripts for publishing to npm
+
+### Fixed
+- Remove `console.error` from the module
+- Cleanup the code
+
+
 ## [0.0.3] - 2023-09-06
 
 ### Changed
