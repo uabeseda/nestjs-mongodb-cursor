@@ -1,6 +1,6 @@
 {
   "name": "@uabeseda/nestjs-mongodb-cursor",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
@@ -8,6 +8,7 @@
     "npm:publish": "npm publish --access public"
   },
   "keywords": [
+    "nodejs",
     "nestjs",
     "mongodb",
     "mongoose",

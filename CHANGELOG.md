@@ -1,6 +1,12 @@
 # Changelog
 
 
+## [0.0.5] - 2023-09-16
+
+### Added
+- Add nodejs keyword to package.json
+
+
 ## [0.0.4] - 2023-09-14
 
 ### Added
